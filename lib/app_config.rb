@@ -11,17 +11,21 @@ class ApplicationConfiguration
   #
   # Ex:
   #  ApplicationConfiguration.new(RAILS_ROOT+"/config/base.yml", RAILS_ROOT+"/environments/#{RAILS_ENV}_config.yml")
-  def initialize(conf_path_1, conf_path_2 = nil)
-    @conf_path_1, @conf_path_2 = conf_path_1, conf_path_2
+  def initialize(*paths)
+    @paths = paths
     reload!
   end
   
   # Rereads your configuration files and rebuilds your ApplicationConfiguration object.  This is useful
   # for when you edit your config files, but don't want to restart your web server.
   def reload!
-    conf1 = load_conf_file(@conf_path_1)
-    conf2 = load_conf_file(@conf_path_2)
-    @config_hash  = recursive_merge(conf1, conf2)
+    @config_hash = {}
+
+    @paths.each do |path|
+      config = load_conf_file path
+      @config_hash = recursive_merge @config_hash, config
+    end
+
     @config = ClosedStruct.r_new(@config_hash)
   end
   

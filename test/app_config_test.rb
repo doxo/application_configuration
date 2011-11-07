@@ -47,6 +47,13 @@ class AppConfigTest < Test::Unit::TestCase
     assert_equal 'webmaster@domain.com', config.emails.webmaster
     assert_equal 'feedback@domain.com', config.emails.feedback
   end
+
+  def test_recursive_merge_many_configs
+    config = ApplicationConfiguration.new('test/app_config.yml', 'test/empty1.yml', 'test/empty2.yml', 'test/override_with.yml', 'test/environments.yml', 'test/development.yml')
+    assert_equal 'support@domain.com', config.emails.support
+    assert_equal 'webmaster@domain.com', config.emails.webmaster
+    assert_equal 'feedback@domain.com', config.emails.feedback
+  end
   
   def test_exception_on_non_existant_values
     config = ApplicationConfiguration.new('test/app_config.yml')
