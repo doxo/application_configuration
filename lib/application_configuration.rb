@@ -4,18 +4,21 @@ require 'erb'
 
 class ApplicationConfiguration
   if Object.const_defined?('Rails')
-    initializer "application_configuration.load_configs", :after => 'initialize' do
-      paths = \
-        "#{Rails.root}/config/app_config.yml",
-        "#{Rails.root}/config/environments/#{Rails.env}.yml"
+    class Railtie < Rails::Railtie
+      initializer "application_configuration.load_configs", :after => 'initialize' do
+        paths = \
+          "#{Rails.root}/config/app_config.yml",
+          "#{Rails.root}/config/environments/#{Rails.env}.yml"
 
-      # convert Aspen::Application to 'aspen'
-      app_name = Rails.application.class.to_s.split('::').first.downcase
+        if Rails.env.development?
+          # look for an application rc file in the user's home dir
+          app_name = Rails.application.class.to_s.split('::').first.downcase
+          apprc_path = File.join(Etc.getpwuid.dir, ".#{app_name}rc")
+          paths << apprc_path if File.file? apprc_path
+        end
 
-      apprc_path = File.join(Etc.getpwuid.dir, "#{app_name}rc")
-      paths << apprc_path if File.file? apprc_path
-
-      ::AppConfig = ApplicationConfiguration.new paths
+        ::AppConfig = ApplicationConfiguration.new *paths
+      end
     end
   end
 
@@ -30,7 +33,7 @@ class ApplicationConfiguration
     @paths = paths
     reload!
   end
-  
+
   # Rereads your configuration files and rebuilds your ApplicationConfiguration object.  This is useful
   # for when you edit your config files, but don't want to restart your web server.
   def reload!
