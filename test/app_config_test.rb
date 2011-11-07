@@ -1,5 +1,5 @@
 require 'test/unit'
-require 'app_config'
+require 'application_configuration'
 
 class AppConfigTest < Test::Unit::TestCase
   

@@ -1,9 +1,24 @@
-require 'closed_struct'
+require 'application_configuration/closed_struct'
 require 'yaml'
 require 'erb'
 
 class ApplicationConfiguration
-  
+  if Object.const_defined?('Rails')
+    initializer "application_configuration.load_configs", :after => 'initialize' do
+      paths = \
+        "#{Rails.root}/config/app_config.yml",
+        "#{Rails.root}/config/environments/#{Rails.env}.yml"
+
+      # convert Aspen::Application to 'aspen'
+      app_name = Rails.application.class.to_s.split('::').first.downcase
+
+      apprc_path = File.join(Etc.getpwuid.dir, "#{app_name}rc")
+      paths << apprc_path if File.file? apprc_path
+
+      ::AppConfig = ApplicationConfiguration.new paths
+    end
+  end
+
   # Create a new ApplicationConfiguration object.  <tt>conf_path_1</tt> is the path to your YAML configuration file.
   # If <tt>conf_path_2</tt> is given, the contents are recursively merged with the contents of <tt>conf_path_1</tt>.
   # This allows you to have a "base" configuration with settings that are overrided by "environment specific"
