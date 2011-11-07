@@ -2,6 +2,7 @@ require 'test/unit'
 require 'application_configuration'
 
 class ClosedStructTest < Test::Unit::TestCase
+  ClosedStruct = ApplicationConfiguration::ClosedStruct
 
   def test_from_hash
     s = ClosedStruct.new :a => "a", "b" => "b", :c => 123
