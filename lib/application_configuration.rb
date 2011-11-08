@@ -15,15 +15,15 @@ class ApplicationConfiguration
   # environment. Will look for a rc file in the user's home dir if the
   # environment is "development".
   def self.load_rails_app(path, environment)
-    config_paths = ["#{path}/config/app_config.yml"]
-
-    env_config = "#{path}/config/environments/#{environment}.yml"
-    config_paths << env_config if File.file? env_config
+    config_paths = [
+      "#{path}/config/app_config.yml",
+      "#{path}/config/environments/#{environment}.yml",
+    ]
 
     if environment == "development"
       # look for an application rc file in the user's home dir
       apprc_path = File.join(Etc.getpwuid.dir, ".#{File.basename path}rc")
-      config_paths << apprc_path if File.file? apprc_path
+      config_paths << apprc_path
     end
 
     new *config_paths
@@ -79,8 +79,7 @@ private
   end
   
   def load_conf_file(conf_path)
-    conf_path or return {}
-    File.exist?(conf_path) or raise Errno::ENOENT.new(conf_path)
+    return {} if !conf_path or conf_path.empty? or !File.exist?(conf_path)
 
     File.open(conf_path, "r") do |file|
       YAML.load(ERB.new(file.read).result) || {}

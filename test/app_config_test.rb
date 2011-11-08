@@ -9,7 +9,8 @@ class AppConfigTest < Test::Unit::TestCase
   include RR::Adapters::TestUnit
   
   def test_missing_files
-    assert_raise(Errno::ENOENT){ ApplicationConfiguration.new('not_here1', 'not_here2') }
+    config = ApplicationConfiguration.new('not_here1', 'not_here2')
+    assert_equal OpenStruct.new, config.instance_variable_get("@config")
   end
   
   def test_empty_files
