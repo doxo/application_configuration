@@ -6,9 +6,11 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    rr (1.0.4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   application_configuration!
+  rr
