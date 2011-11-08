@@ -1,11 +1,15 @@
 require 'test/unit'
+require 'pathname'
+require 'rubygems'
+require 'rr'
+
 require 'application_configuration'
 
 class AppConfigTest < Test::Unit::TestCase
+  include RR::Adapters::TestUnit
   
   def test_missing_files
-    config = ApplicationConfiguration.new('not_here1', 'not_here2')
-    assert_equal OpenStruct.new, config.instance_variable_get("@config")
+    assert_raise(Errno::ENOENT){ ApplicationConfiguration.new('not_here1', 'not_here2') }
   end
   
   def test_empty_files
@@ -109,5 +113,25 @@ class AppConfigTest < Test::Unit::TestCase
     assert_equal "feedback@domain.com", config.emails.feedback
     assert_raise(NoMethodError){ config.emails.support }
   end
-  
+
+  def test_load_rails_app_with_development_environment
+    path = Pathname.new('/path/to_a/appname')
+    stub(File).file?("#{Etc.getpwuid.dir}/.appnamerc") {true}
+    mock(ApplicationConfiguration).new(
+      path.join('config/app_config.yml').to_s,
+      path.join('config/environments/development.yml').to_s,
+      "#{Etc.getpwuid.dir}/.appnamerc"
+    )
+    ApplicationConfiguration.load_rails_app('/path/to_a/appname', 'development')
+  end
+
+  def test_load_rails_app_without_development_environment
+    path = Pathname.new('/path/to_a/appname')
+    stub(File).file?("#{Etc.getpwuid.dir}/.appnamerc") {true}
+    mock(ApplicationConfiguration).new(
+      path.join('config/app_config.yml').to_s,
+      path.join('config/environments/test.yml').to_s
+    )
+    ApplicationConfiguration.load_rails_app('/path/to_a/appname', 'test')
+  end
 end

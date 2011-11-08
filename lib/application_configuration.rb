@@ -6,20 +6,27 @@ class ApplicationConfiguration
   if Object.const_defined?('Rails')
     class Railtie < Rails::Railtie
       initializer "application_configuration.load_configs", :after => 'initialize' do
-        paths = \
-          "#{Rails.root}/config/app_config.yml",
-          "#{Rails.root}/config/environments/#{Rails.env}.yml"
-
-        if Rails.env.development?
-          # look for an application rc file in the user's home dir
-          app_name = Rails.application.class.to_s.split('::').first.downcase
-          apprc_path = File.join(Etc.getpwuid.dir, ".#{app_name}rc")
-          paths << apprc_path if File.file? apprc_path
-        end
-
-        ::AppConfig = ApplicationConfiguration.new *paths
+        ::AppConfig = ApplicationConfiguration.load_rails_app Rails.root, Rails.env
       end
     end
+  end
+
+  # Returns the config for a rails app at path with the given rails
+  # environment. Will look for a rc file in the user's home dir if the
+  # environment is "development".
+  def self.load_rails_app(path, environment)
+    config_paths = ["#{path}/config/app_config.yml"]
+
+    env_config = "#{path}/config/environments/#{environment}.yml"
+    config_paths << env_config if File.file? env_config
+
+    if environment == "development"
+      # look for an application rc file in the user's home dir
+      apprc_path = File.join(Etc.getpwuid.dir, ".#{File.basename path}rc")
+      config_paths << apprc_path if File.file? apprc_path
+    end
+
+    new *config_paths
   end
 
   # Create a new ApplicationConfiguration object.  <tt>conf_path_1</tt> is the path to your YAML configuration file.
@@ -72,7 +79,7 @@ private
   end
   
   def load_conf_file(conf_path)
-    conf_path && conf_path.any? or return {}
+    conf_path or return {}
     File.exist?(conf_path) or raise Errno::ENOENT.new(conf_path)
 
     File.open(conf_path, "r") do |file|
