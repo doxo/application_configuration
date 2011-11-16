@@ -115,24 +115,13 @@ class AppConfigTest < Test::Unit::TestCase
     assert_raise(NoMethodError){ config.emails.support }
   end
 
-  def test_load_rails_app_with_development_environment
+  def test_load_rails_app
     path = Pathname.new('/path/to_a/appname')
-    stub(File).file?("#{Etc.getpwuid.dir}/.appnamerc") {true}
     mock(ApplicationConfiguration).new(
       path.join('config/app_config.yml').to_s,
       path.join('config/environments/development.yml').to_s,
-      "#{Etc.getpwuid.dir}/.appnamerc"
+      path.join('config/environments/development.local.yml').to_s
     )
     ApplicationConfiguration.load_rails_app('/path/to_a/appname', 'development')
-  end
-
-  def test_load_rails_app_without_development_environment
-    path = Pathname.new('/path/to_a/appname')
-    stub(File).file?("#{Etc.getpwuid.dir}/.appnamerc") {true}
-    mock(ApplicationConfiguration).new(
-      path.join('config/app_config.yml').to_s,
-      path.join('config/environments/test.yml').to_s
-    )
-    ApplicationConfiguration.load_rails_app('/path/to_a/appname', 'test')
   end
 end

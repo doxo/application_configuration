@@ -12,21 +12,11 @@ class ApplicationConfiguration
   end
 
   # Returns the config for a rails app at path with the given rails
-  # environment. Will look for a rc file in the user's home dir if the
-  # environment is "development".
+  # environment.
   def self.load_rails_app(path, environment)
-    config_paths = [
-      "#{path}/config/app_config.yml",
+    new "#{path}/config/app_config.yml",
       "#{path}/config/environments/#{environment}.yml",
-    ]
-
-    if environment == "development"
-      # look for an application rc file in the user's home dir
-      apprc_path = File.join(Etc.getpwuid.dir, ".#{File.basename path}rc")
-      config_paths << apprc_path
-    end
-
-    new *config_paths
+      "#{path}/config/environments/#{environment}.local.yml"
   end
 
   # Create a new ApplicationConfiguration object.  <tt>conf_path_1</tt> is the path to your YAML configuration file.
