@@ -68,7 +68,7 @@ configurations will not be recursively merged.  See example below.
     nested:
       foo: foo
       bar: bar
-  
+
   development:
     <<: *defaults
     two: new

@@ -1,7 +1,15 @@
-require 'rake'
+require 'rubygems'
+require 'bundler'
 require 'rake/testtask'
-require 'rake/rdoctask'
-require "bundler/gem_tasks"
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run 'bundle install' to install missing gems"
+  exit e.status_code
+end
+
+Bundler::GemHelper.install_tasks
 
 desc 'Default: run unit tests.'
 task :default => :test
@@ -13,11 +21,9 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
-desc 'Generate documentation for the app_config plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'ApplicationConfiguration'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README.rdoc')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+desc 'Deletes pkg directory'
+task :clean do
+  sh 'rm -rf pkg' do |ok, res|
+    puts "pkg directory could not be cleaned: #{res}" unless ok
+  end
 end

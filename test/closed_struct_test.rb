@@ -11,7 +11,7 @@ class ClosedStructTest < Test::Unit::TestCase
     assert_equal 123, s.c
     assert_raise(NoMethodError){ s.d }
   end
-  
+
   def test_from_array
     s = ClosedStruct.new :a, :b, :c
     s.b = "b"
@@ -20,12 +20,12 @@ class ClosedStructTest < Test::Unit::TestCase
     assert_nil s.c
     assert_raise(NoMethodError){ s.d }
   end
-  
+
   def test_nested_hash
     s = ClosedStruct.r_new :a => :a, :b => { :c => :c }, :d => :d
     assert_equal :c, s.b.c
   end
-  
+
   def test_nested_hashes_in_array
     s = ClosedStruct.r_new :a => :a, :b => [ {:c => :c }, { :d => :d } ], :e => :e
     assert_equal :c, s.b[0].c
